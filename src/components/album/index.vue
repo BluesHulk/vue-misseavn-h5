@@ -1,0 +1,392 @@
+<template>
+  <div id="home">
+     <div id="AlbumPage">
+         <div class="Wall album-wall">
+            <div class="wall-body">
+                <img class="album-avatar" :src="front_cover">
+                <div class="album-detail">
+                      <span class="album-title">{{title}}</span>
+                      <a  :href="'/'+user_id+'/sound'" class="Thumbnail simple-user album-user">
+                        <img class="avatar" :src="cover_image">
+                        <span class="name">{{username}}</span>
+                      </a>
+                </div>
+            </div>
+            <div class="wall-warp blur"  :style="{backgroundImage:'url(' + front_cover + ')'}"></div>
+         </div>
+        <iIScroll ref = "scroll" class="recommend-content">
+            <div id="albumList">
+                <div class="Thumbnail list-sound" v-for="(item,index) in soundList">
+                      <div class="cover">
+                        <img class="cover-img" :src="item.front_cover">
+                      </div>
+                      <a class="detail" :href="'/sound/'+item.id">
+                        <div class="title">{{item.soundstr}}</div>
+                        <div class="statistics">
+                            <div class="item play-times">{{item.view_count_formatted}}</div>
+                            <div class="item duration">{{format(item.duration)}}</div>
+                        </div>
+                      </a>
+                </div>
+            </div>
+        </iIScroll>
+     </div>
+   </div>
+</template>
+<script>
+  import  iIScroll from 'base/scroll/index.vue'; 
+  export default{
+     data(){
+        return {
+           blurImg : require('../../common/image/blur.jpg'),
+           title:"",
+           username:"",
+           front_cover:"",
+           user_id:"",
+           cover_image:"",
+           soundList:[]
+        }
+     },
+     created(){
+         const id = this.$route.params.id
+         console.log(this.$route.params)
+        this.audioSrc(id)
+     },
+      watch:{
+       '$route' (to, from) {
+         console.log()
+        }
+      },
+     components:{
+        iIScroll,
+     },
+     methods:{
+       audioSrc(id){
+         var that = this ;
+           this.$ajax('rankDetail', {
+                "albumid":id,
+            }).then(function(res){
+              that.title = res.data.info.album.title;
+              that.username = res.data.info.album.username;
+              that.front_cover = res.data.info.album.front_cover;
+              that.user_id = res.data.info.album.user_id;
+              that.cover_image = res.data.info.owner.avatar2;
+              that.soundList = res.data.info.sounds
+            })
+       
+       },
+       _pad(num, n = 2) {  //格式化时间分钟
+        let len = num.toString().length
+        while (len < n) {
+          num = '0' + num
+          len++
+        }
+        return num
+      },
+      format(interval) {
+        interval = interval | 0
+        const minute = interval / 60 / 1000 | 0
+        const second = this._pad(interval % 60)
+        return `${minute}:${second}`
+      },
+     }
+  }
+</script>
+<style lang="scss">
+   #home{
+          min-height: -webkit-calc(100vh - 0.4rem);
+          min-height: -moz-calc(100vh - 0.4rem);
+          min-height: calc(100vh - 0.4rem);
+          max-width: 100vw;
+          #AlbumPage{
+            display: block;
+            position: relative;
+            height: 100%;
+            width: 100%;
+              .Wall {
+                  display: block;
+                  position: relative;
+                  left: 0;
+                  right: 0;
+                  top: 0;
+                  overflow: hidden;
+                  .wall-warp {
+                      display: block;
+                      position: absolute;
+                      left: -0.2rem;
+                      right: -0.2rem;
+                      top: -0.2rem;
+                      bottom: -0.2rem;
+                      z-index: 0;
+                      background-position: 50%;
+                      background-repeat: no-repeat;
+                      -moz-background-size: 100% 100%;
+                      -o-background-size: 100% 100%;
+                      background-size: 100% 100%;
+                      &.blur {
+                          -webkit-filter: blur(0.2rem);
+                          filter: blur(0.2rem);
+                      }
+                  }
+              }
+             .album-wall {
+                  height: 1.5rem;
+                  width:100%;
+                  background-color: rgba(0,0,0,.5);
+                  .wall-body {
+                      display: -webkit-box;
+                      display: -webkit-flex;
+                      display: -moz-box;
+                      display: -ms-flexbox;
+                      display: flex;
+                      -webkit-justify-content: space-around;
+                      -ms-flex-pack: distribute;
+                      justify-content: space-around;
+                      -webkit-box-align: center;
+                      -webkit-align-items: center;
+                      -moz-box-align: center;
+                      -ms-flex-align: center;
+                       align-items: center;
+                       position: absolute;
+                        padding: 0.1rem;
+                        overflow: hidden;
+                        left: 0;
+                        right: 0;
+                        top: 0;
+                        bottom: 0;
+                        z-index: 1;
+                       .album-avatar {
+                            width: 1.1rem;
+                            height: 1.1rem;
+                            display: block;
+                       }
+                       .album-detail {
+                            display: -webkit-box;
+                            display: -webkit-flex;
+                            display: -moz-box;
+                            display: -ms-flexbox;
+                            display: flex;
+                            -webkit-box-orient: vertical;
+                            -webkit-box-direction: normal;
+                            -webkit-flex-direction: column;
+                            -moz-box-orient: vertical;
+                            -moz-box-direction: normal;
+                            -ms-flex-direction: column;
+                            flex-direction: column;
+                            -webkit-box-pack: justify;
+                            -webkit-justify-content: space-between;
+                            -moz-box-pack: justify;
+                            -ms-flex-pack: justify;
+                            justify-content: space-between;
+                            color: #fff;
+                            width: -webkit-calc(100% - 1.3rem);
+                            width: -moz-calc(100% - 1.3rem);
+                            width: calc(100% - 1.3rem);
+                            height: 1.1rem;
+                            .album-title {
+                                width: -webkit-calc(100% - 0.1rem);
+                                width: -moz-calc(100% - 0.1rem);
+                                width: calc(100% - 0.1rem);
+                                height: 0.5rem;
+                                word-break: break-all;
+                                -o-text-overflow: ellipsis;
+                                text-overflow: ellipsis;
+                                overflow: hidden;
+                                display: -moz-box;
+                                -moz-box-orient: vertical;
+                                -moz-line-clamp: 2;
+                                display: -webkit-box;
+                                -webkit-box-orient: vertical;
+                                -webkit-line-clamp: 2;
+                                box-orient: vertical;
+                                line-clamp: 2;
+                                line-height: 0.25rem;
+                                margin-left: 0.1rem;
+                            }
+                            .album-user {
+                                  width: -webkit-calc(100% - 0.1rem);
+                                  width: -moz-calc(100% - 0.1rem);
+                                  width: calc(100% - 0.1rem);
+                                  position: relative;
+                                  color: #fff;
+                            }
+                           
+                        }
+                  }
+             }
+             .recommend-content{
+               width:100%;
+               height: calc(100vh - 1.9rem);
+             }
+             #albumList{
+                display: block;
+                position: relative;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+             }
+              .Thumbnail{
+                display: inline-block;
+                margin: 0.05rem;
+                padding: 0;
+                &.cover {
+                    display: block;
+                    overflow: hidden;
+                    position: relative;
+                    -webkit-border-radius: 0.04rem;
+                    -moz-border-radius: 0.04rem;
+                    border-radius: 0.04rem;
+                    background-repeat: no-repeat;
+                    background-position: 50%;
+                    -moz-background-size: 100%;
+                    -o-background-size: 100%;
+                    background-size: 100%;
+                }
+
+
+                &.simple-user {
+                  display: block;
+                  height: 0.3rem;
+                  line-height: 0.3rem;
+                  width: 2rem;
+                  .avatar {
+                      height: 0.25rem;
+                      width: 0.25rem;
+                      display: block;
+                      position: absolute;
+                      left: 0.02rem;
+                      margin: 0.02rem;
+                      -webkit-border-radius: 50%;
+                      -moz-border-radius: 50%;
+                      border-radius: 50%;
+                  }
+                  .name {
+                    display: block;
+                    position: relative;
+                    margin-left: 0.4rem;
+                    font-size: 0.16rem;
+                    width: -webkit-calc(100% - 0.4rem);
+                    width: -moz-calc(100% - 0.4rem);
+                    width: calc(100% - 0.4rem);
+                    white-space: nowrap;
+                    -o-text-overflow: ellipsis;
+                    text-overflow: ellipsis;
+                    overflow: hidden;
+                  }
+                }
+                &.list-sound {
+                    display: block;
+                    position: relative;
+                    height: 0.7rem;
+                    line-height: 0.7rem;
+                    width: 100%;
+                    margin: 0;
+                    .cover {
+                        margin: 0.1rem;
+                        float: left;
+                        overflow: hidden;
+                        position: relative;
+                        -webkit-border-radius: 0.04rem;
+                        -moz-border-radius: 0.04rem;
+                        border-radius: 0.04rem;
+                        height: 0.5rem;
+                        width: 0.5rem;
+                        .cover-img {
+                            -webkit-border-radius: 0.04rem;
+                            -moz-border-radius: 0.04rem;
+                            border-radius: 0.04rem;
+                            height: 0.5rem;
+                            width: 0.5rem;
+                            display: block;
+                            z-index: 0;
+                            position: absolute;
+                        }
+                    }
+                    .detail {
+                        float: right;
+                        padding: 10px 0;
+                        height: 100%;
+                        width: -webkit-calc(100% - 0.7rem);
+                        width: -moz-calc(100% - 0.7rem);
+                        width: calc(100% - 0.7rem);
+                        color: #424242;
+                        overflow: hidden;
+                        position: relative;
+                        .title {
+                            width: 94%;
+                            height: 0.36rem;
+                            word-break: break-all;
+                            -o-text-overflow: ellipsis;
+                            text-overflow: ellipsis;
+                            overflow: hidden;
+                            display: -moz-box;
+                            -moz-box-orient: vertical;
+                            -moz-line-clamp: 2;
+                            display: -webkit-box;
+                            -webkit-box-orient: vertical;
+                            -webkit-line-clamp: 2;
+                            box-orient: vertical;
+                            line-clamp: 2;
+                            line-height: 0.18rem;
+                            font-size: 0.12rem;
+                            color: #616161;
+                        }
+                        .statistics {
+                            display: block;
+                            position: absolute;
+                            left: 0;
+                            right: 0;
+                            bottom: 0.11rem;
+                            height: 0.12rem;
+                            line-height: 0.12rem;
+                            .item {
+                                font-size: 0.12rem;
+                                color: #9e9e9e;
+                                margin-right: 0.2rem;
+                                padding-left: 0.18rem;
+                                width: 0.66rem;
+                                white-space: nowrap;
+                                -o-text-overflow: ellipsis;
+                                text-overflow: ellipsis;
+                                overflow: hidden;
+                                display: inline-block;
+                                position: relative;
+                                &:before{
+                                      content: "";
+                                      display: block;
+                                      position: absolute;
+                                      left: 0.02rem;
+                                      top: 0.01rem;
+                                      width: 0.12rem;
+                                      height: 0.12rem;
+                                      line-height: 0.12rem;
+                                }
+                                &.play-times{
+                                  &:before{
+                                    -moz-background-size: 0.56rem 0.55rem;
+                                    -o-background-size: 0.56rem 0.55rem;
+                                    background-size: 0.56rem 0.55rem;
+                                    background-image: url(../../common/image/sprite-icons-thumbnails.png);
+                                    background-position: -0.44rem -0.14rem;
+                                  }
+                                }
+
+                                &.duration{
+                                  &:before{
+                                    -moz-background-size: 0.56rem 0.55rem;
+                                    background-position: -0.15rem -0.44rem;
+                                    -o-background-size: 0.56rem 0.55rem;
+                                    background-size: 0.56rem 0.55rem;
+                                    background-image: url(../../common/image/sprite-icons-thumbnails.png);
+                                  }
+                                }
+                            }
+                        }
+                    }
+                }
+              }
+          }
+           
+   }
+</style>
