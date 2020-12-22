@@ -77,7 +77,7 @@
     "less-loader": "^4.0.5",
     "mocha": "^3.2.0",
     "nightwatch": "^0.9.12",
-    "node-notifier": "^5.1.2",
+    "node-notifier": "^8.0.1",
     "node-sass": "^4.9.4",
     "nodemon": "^1.12.1",
     "opn": "^5.1.0",
